@@ -126,7 +126,7 @@ def limit_retry(task: callable, retry_limit: int = 10):
 
             log = Log()
             log.time = datetime.datetime.now()
-            log.content = '遇到错误，重试次数：' + counter + '，错误信息：' + traceback.format_exc()
+            log.content = '遇到错误，重试次数：' + str(counter) + '，错误信息：' + traceback.format_exc()
             log.save()
 
             continue
