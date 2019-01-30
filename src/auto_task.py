@@ -137,19 +137,22 @@ def everyday_task():
     limit_retry(lambda: sign_task(), 10)
 
 
-@database.connection_context()
 def do_auto_task():
 
-    prepare_database()
+    with database.connection_context():
+        prepare_database()
 
     last_date = None
     while True:
         current_date = datetime.date.today()
         if (last_date is None) or (current_date > last_date):
-            everyday_task()
+
+            with database.connection_context():
+                everyday_task()
+
             last_date = current_date
 
-        next_day_iso = (datetime.date.today() + datetime.timedelta(days=1)).isoformat()
+        next_day_iso = (current_date + datetime.timedelta(days=1)).isoformat()
         next_day_datetime = datetime.datetime.fromisoformat(next_day_iso)
         total_seconds = (next_day_datetime - datetime.datetime.now()).total_seconds()
         time.sleep(total_seconds)
