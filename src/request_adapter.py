@@ -69,7 +69,7 @@ class RequestAdapter:
             current_time = datetime.datetime.now()
             delta_seconds = (current_time - self.last_request_time).total_seconds()
             if delta_seconds < HTTP_REQUEST_INTERVAL:
-                time.sleep(delta_seconds)
+                time.sleep(HTTP_REQUEST_INTERVAL-delta_seconds)
 
         request = urllib.request.Request(
             url=url,
