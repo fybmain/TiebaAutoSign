@@ -47,7 +47,6 @@ class TiebaOperator:
         regex = re.compile(r'"([^"]+tab=favorite)"')
         link = re.search(regex, response_content).group(1)
         result = ('http://tieba.baidu.com' + html.unescape(link))[:-21]
-        print('sign url prefix:', result)
         return result
 
     def prepare_sign(self):

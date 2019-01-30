@@ -71,7 +71,6 @@ class RequestAdapter:
             if delta_seconds < HTTP_REQUEST_INTERVAL:
                 time.sleep(delta_seconds)
 
-        print(url)
         request = urllib.request.Request(
             url=url,
             data=encoded_data,
