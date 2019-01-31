@@ -115,6 +115,21 @@ def sign_task():
                 log.save()
 
 
+def clear_log():
+    keep_log_date = datetime.date.today() - datetime.timedelta(30)
+    keep_log_time = datetime.datetime.fromisoformat(keep_log_date.isoformat())
+
+    with database.atomic():
+        clear_condition = Log.time < keep_log_time
+        if Log.select().where(clear_condition).count() > 0:
+            Log.delete().where(clear_condition).execute()
+
+            log = Log()
+            log.time = datetime.datetime.now()
+            log.content = '清除时间早于“' + keep_log_time.isoformat() + '”的日志'
+            log.save()
+
+
 def limit_retry(task: callable, retry_limit: int = 10):
     counter = 0
     while counter < retry_limit:
@@ -133,8 +148,9 @@ def limit_retry(task: callable, retry_limit: int = 10):
 
 
 def everyday_task():
-    limit_retry(lambda: fetch_list_task(), 10)
-    limit_retry(lambda: sign_task(), 10)
+    limit_retry(fetch_list_task, 10)
+    limit_retry(sign_task, 10)
+    limit_retry(clear_log, 3)
 
 
 def do_auto_task():
