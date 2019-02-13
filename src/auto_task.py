@@ -104,7 +104,9 @@ def sign_task():
             for tieba in need_sign_list:
                 with database.atomic():
                     result = operator.sign_tieba(tieba.name)
-                    if (result == SignResult.success) or (result == SignResult.already_signed):
+                    if result == SignResult.not_liked:
+                        tieba.cancelled = True
+                    elif (result == SignResult.success) or (result == SignResult.already_signed):
                         tieba.last_sign_date = datetime.date.today()
                     tieba.save()
 
