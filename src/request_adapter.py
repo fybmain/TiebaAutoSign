@@ -11,6 +11,9 @@ HTTP_REQUEST_INTERVAL = 3
 PHONE_USER_AGENT = 'Mozilla/5.0 (Windows NT 10.0; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.102 UBrowser/6.1.2107.204 Safari/537.36'
 
 
+last_request_time = None
+
+
 def make_cookie(name, value):
     cookie=http.cookiejar.Cookie(
         version=0,
@@ -35,8 +38,6 @@ def make_cookie(name, value):
 
 class RequestAdapter:
     def __init__(self):
-        self.last_request_time = None
-
         self.cookie_jar = http.cookiejar.CookieJar()
         self.cookie_processor = urllib.request.HTTPCookieProcessor(self.cookie_jar)
         self.opener = urllib.request.build_opener(self.cookie_processor, urllib.request.HTTPHandler)
@@ -64,10 +65,12 @@ class RequestAdapter:
         else:
             encoded_data = urllib.parse.urlencode(data).encode()
 
-        if not (self.last_request_time is None):
-            assert isinstance(self.last_request_time, datetime.datetime)
+        global last_request_time
+
+        if not (last_request_time is None):
+            assert isinstance(last_request_time, datetime.datetime)
             current_time = datetime.datetime.now()
-            delta_seconds = (current_time - self.last_request_time).total_seconds()
+            delta_seconds = (current_time - last_request_time).total_seconds()
             if delta_seconds < HTTP_REQUEST_INTERVAL:
                 time.sleep(HTTP_REQUEST_INTERVAL-delta_seconds)
 
@@ -77,7 +80,8 @@ class RequestAdapter:
             headers=headers
         )
         response = self.opener.open(request)
-        self.last_request_time = datetime.datetime.now()
+
+        last_request_time = datetime.datetime.now()
 
         result = response.read()
         return result
